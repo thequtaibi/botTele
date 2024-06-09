@@ -3,10 +3,10 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 import yt_dlp as youtube_dl
 import os
 
-TOKEN = '7252779471:AAF6zpHOJm4PjIcv8qNQV11Ey74j8wqeOXA'
+TOKEN = 'YOUR_BOT_TOKEN_HERE'  # تأكد من وضع التوكن الصحيح هنا
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('أهلاً! أرسل لي رابط فيديو من تيك توك، إنستجرام، أو تويتر لتحميله.')
+    await update.message.reply_text('حياك الله اخي المحارب ارسل الرابط للبداء ⚔️')
 
 def download_video(url):
     ydl_opts = {
@@ -22,17 +22,17 @@ def download_video(url):
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text
-    if "tiktok.com" in url or "instagram.com" in url or "x.com" in url:
+    if any(site in url for site in ["tiktok.com", "instagram.com", "x.com", "youtube.com", "youtu.be"]):
         try:
             video_file = download_video(url)
             with open(video_file, 'rb') as video:
                 await update.message.reply_video(video=video)
             os.remove(video_file)  # احذف الملف بعد الإرسال لتوفير المساحة
         except Exception as e:
-            await update.message.reply_text('فشل في تحميل الفيديو. الرجاء التحقق من الرابط والمحاولة مرة أخرى.')
+            await update.message.reply_text('يوجد مشكلة نعتذر أية المحارب 😞.')
             print(f"Error: {e}")
     else:
-        await update.message.reply_text('الرجاء إرسال رابط فيديو من تيك توك، إنستجرام، أو تويتر.')
+        await update.message.reply_text('فقط تيك توك، إنستجرام، تويتر، أو يوتيوب.')
 
 def main():
     application = ApplicationBuilder().token(TOKEN).build()
