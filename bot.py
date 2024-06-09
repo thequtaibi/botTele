@@ -3,7 +3,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 import yt_dlp as youtube_dl
 import os
 
-TOKEN = 'YOUR_BOT_TOKEN_HERE'  # تأكد من وضع التوكن الصحيح هنا
+TOKEN = '7252779471:AAF6zpHOJm4PjIcv8qNQV11Ey74j8wqeOXA'  # تأكد من وضع التوكن الصحيح هنا
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('حياك الله اخي المحارب ارسل الرابط للبداء ⚔️')
