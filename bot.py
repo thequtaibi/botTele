@@ -22,7 +22,7 @@ def download_video(url):
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = update.message.text
-    if any(site in url for site in ["tiktok.com", "instagram.com", "x.com", "youtube.com", "youtu.be"]):
+    if any(site in url for site in ["tiktok.com"]):
         try:
             video_file = download_video(url)
             with open(video_file, 'rb') as video:
@@ -32,7 +32,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text('يوجد مشكلة نعتذر أية المحارب 😞.')
             print(f"Error: {e}")
     else:
-        await update.message.reply_text('فقط تيك توك، إنستجرام، تويتر، أو يوتيوب.')
+        await update.message.reply_text('فقط تيك توك ✋🏻')
 
 def main():
     application = ApplicationBuilder().token(TOKEN).build()
