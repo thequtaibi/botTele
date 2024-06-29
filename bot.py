@@ -1,67 +1,41 @@
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
-import yt_dlp as youtube_dl
-import os
+import datetime
+import pytz
+from telegram import Bot
+from time import sleep
 
+# تعريف معلومات التواصل مع التليجرام
+TOKEN = '7383336156:AAFeNRBYf-3f5GmvUpWbNioe3AbLdU8Wv8I'  # قم بوضع توكن البوت الخاص بك هنا
+CHAT_ID = -1002215256958  # قم بوضع ID الشات هنا
 
+# إعداد التوقيت لمدينة الرياض
+riyadh = pytz.timezone('Asia/Riyadh')
 
-TOKEN = '7252779471:AAF6zpHOJm4PjIcv8qNQV11Ey74j8wqeOXA'  # تأكد من وضع التوكن الصحيح هنا
+# إعداد البوت
+bot = Bot(token=TOKEN)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        'حياك الله اخي المحارب ارسل الرابط للبداء ⚔️\nيمكنك إرسال روابط تيك توك، يوتيوب، إنستجرام أو تويتر واختيار الجودة المطلوبة (مثل 720p) أو دعها فارغة للحصول على الجودة الافضل.')
+# دالة لإرسال الرسالة المحددة
+def send_message():
+    message = "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا باللَّهِ الْعَلِيُّ الْعَظِيم"
+    bot.send_chat_action(chat_id=CHAT_ID, action='typing')
+    sleep(2)  # انتظر لعرض حالة الكتابة
+    bot.send_message(chat_id=CHAT_ID, text=message)
 
-def download_video(url, quality=None):
-    ydl_opts = {
-        'outtmpl': 'video.%(ext)s',
-        'merge_output_format': 'mp4',
-        'nocheckcertificate': True  # تعطيل التحقق من الشهادات SSL
-    }
-
-    if quality:
-        ydl_opts['format'] = f'bestvideo[height<={quality}]+bestaudio/best[height<={quality}]'
-    else:
-        ydl_opts['format'] = 'bestvideo+bestaudio/best'
-
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=True)
-        video_filename = ydl.prepare_filename(info_dict)
-
-    return video_filename
-
-def save_downloaded_url(url):
-    with open("downloaded_urls.txt", "a") as file:
-        file.write(url + "\n")
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message = update.message.text.split()
-    url = message[0]
-    quality = None
-    if len(message) > 1:
-        quality = message[1]
-
-    supported_sites = ["tiktok.com", "youtube.com", "youtu.be", "instagram.com", "x.com"]
-
-    if any(site in url for site in supported_sites):
-        try:
-            video_file = download_video(url, quality)
-            with open(video_file, 'rb') as video:
-                await update.message.reply_video(video=video)
-            os.remove(video_file)  # احذف الملف بعد الإرسال لتوفير المساحة
-            save_downloaded_url(url)  # سجل الرابط في الملف
-        except Exception as e:
-            await update.message.reply_text('يوجد مشكلة نعتذر أية المحارب 😞.')
-            print(f"Error: {e}")
-    else:
-        await update.message.reply_text('فقط روابط تيك توك، يوتيوب، إنستجرام وتويتر ✋🏻')
-
+# دالة تشغيل البوت
 def main():
-    application = ApplicationBuilder().token(TOKEN).build()
+    while True:
+        now = datetime.datetime.now()
+        # تحويل التوقيت إلى التوقيت الصحيح
+        now = pytz.utc.localize(now).astimezone(riyadh)
+        
+        # إذا كان التوقيت حاليًا 00 دقيقة من كل ساعة
+        if now.minute == 0:
+            send_message()  # أرسل الرسالة الآن
 
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
-    application.run_polling()
+        # الساعة التالية
+        next_hour = now.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
+        delta = next_hour - now
+        # انتظر لحين الوصول إلى الساعة التالية
+        sleep(delta.seconds)
 
 if __name__ == '__main__':
     main()
